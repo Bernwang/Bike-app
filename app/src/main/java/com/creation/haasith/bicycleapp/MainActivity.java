@@ -1,5 +1,6 @@
 package com.creation.haasith.bicycleapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity
     private SignInButton googleSignIn;
     private GoogleApiClient mGoogleApiClient;
 
+    private ProgressDialog loginProgress;
+
 
 
     @Override
@@ -44,6 +47,9 @@ public class MainActivity extends AppCompatActivity
         googleSignIn = (SignInButton) findViewById(R.id.googleSignIn);
 
         mAuth = FirebaseAuth.getInstance();
+
+        loginProgress = new ProgressDialog(this);
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -90,7 +96,10 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void signIn() {
+    private void signIn()
+    {
+        loginProgress.setMessage("Logging In");
+        loginProgress.show();
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -124,13 +133,14 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
 
                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+
+                        loginProgress.dismiss();
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                         // ...
                     }
